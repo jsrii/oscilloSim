@@ -4,6 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oscilloscope Simulator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
     <style>
         body {
             display: flex;
@@ -15,54 +21,60 @@
 
         canvas {
             border: 1px solid #333;
+            border-radius: 15px;
         }
     </style>
-    <title>Oscilloscope Simulator</title>
-</head>
+    <div class="mainContainer border border-4 rounded-4  pe-3  ps-3 pb-3">
+        <div class="titleContainer">
+            <h1 class="display-2">Oscilloscope Simulator</h1>
+            <h3 class="card-subtitle">Jas Sri</h3>
+        </div>
+        <hr>
+        <canvas id="oscilloscope" width="800" height="400"></canvas>
+        <div class="row">
+            <div class="col-4">
+                <div class="align-middle mb-1" style="vertical-align: middle;">
+                    <button type="button" id="frequencyReset" class="btn btn-primary">𝑓</button>
+                    <input type="range" id="period" min="1" max="40" step="0.01">
+                </div>
+                <div class="align-middle mt-1 mb-1" style="vertical-align: middle;">
+                    <button type="button" class="btn btn-primary" id="amplitudeReset"
+                        style="--bs-btn-padding-y: 0.3rem; --bs-btn-padding-x: 0.3rem;"><img
+                            src="/Assets/2129404-200.png" alt="Amplitude"
+                            style="filter: invert(100%); width: 1.5rem; height: 1.5rem;"></button>
+                    <input type="range" id="amplitude" min="1" max="4" step="0.01">
+                </div>
 
-<body>
-    <canvas id="oscilloscope" width="800" height="400"></canvas>
-
-    <div>
-        <label for="period">Period:</label>
-        <input type="range" id="period" min="1" max="40" step="0.01">
+                <div class="align-middle mb-1" style="vertical-align: middle;">
+                    <button type="button" class="btn btn-primary" id="yOffsetReset">𝑦</button>
+                    <input type="range" id="yOffset" min="-200" max="200" step="1">
+                </div>
+            </div>
+            <div class="col-4">
+                <div class="mb-2">
+                    <label for="waveType">Wave:</label>
+                    <select id="waveType">
+                        <option value="sine">Sine</option>
+                        <option value="square">Square</option>
+                        <option value="triangle">Triangle</option>
+                        <option value="voice">Microphone</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="timebase">Timebase:</label>
+                    <select id="timebase">
+                        <option value="0.05">50 ns</option>
+                        <option value="0.100">100 ns</option>
+                        <option value="0.200">200 ns</option>
+                        <option value="0.500">500 ns</option>
+                        <option value="1">1 ms</option>
+                        <option value="2">2 ms</option>
+                        <option value="5">5 ms</option>
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label for="waveType">Wave Type:</label>
-        <select id="waveType">
-            <option value="sine">Sine</option>
-            <option value="square">Square</option>
-            <option value="triangle">Triangle</option>
-            <option value="voice">Microphone</option>
-        </select>
-    </div>
-
-    <div>
-        <label for="amplitude">Amplitude:</label>
-        <input type="range" id="amplitude" min="1" max="4" step="0.01">
-    </div>
-
-    <div>
-        <label for="yOffset">Y Offset:</label>
-        <input type="range" id="yOffset" min="-200" max="200" step="1">
-    </div>
-
-    <div>
-        <label for="timebase">Timebase:</label>
-        <select id="timebase">
-            <option value="0.05">50 ns</option>
-            <option value="0.100">100 ns</option>
-            <option value="0.200">200 ns</option>
-            <option value="0.500">500 ns</option>
-            <option value="1">1 ms</option>
-            <option value="2">2 ms</option>
-            <option value="5">5 ms</option>
-        </select>
-    </div>
-
-    <button id="resetValues">Reset</button>
-
     <script>
 
 
@@ -254,16 +266,27 @@
             // Update the oscilloscope initially
             updateOscilloscope([]);
 
-            document.getElementById('resetValues').addEventListener('click', () => {
+
+            document.getElementById('frequencyReset').addEventListener('click', () => {
                 document.getElementById("period").value = 1;
+                updateOscilloscope();
+                drawOscilloscope();
+            });
+            
+            document.getElementById('amplitudeReset').addEventListener('click', () => {
                 document.getElementById("amplitude").value = 1;
-                document.getElementById("yOffset").value = 0;
-                oscilloscope.yOffset = 0;
                 oscilloscope.amplitude = 1;
                 updateOscilloscope();
                 drawOscilloscope();
             });
-
+            
+            document.getElementById('yOffsetReset').addEventListener('click', () => {
+                document.getElementById("yOffset").value = 0;
+                oscilloscope.yOffset = 0;
+                updateOscilloscope();
+                drawOscilloscope();
+            });
+            
             // Listen for changes in the period, waveType, amplitude, Y offset, and timebase sliders
             document.getElementById("period").addEventListener("input", updateOscilloscope);
             document.getElementById("waveType").addEventListener("change", updateOscilloscope);
