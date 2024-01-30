@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        canvas {
+            border: 1px solid #333;
+        }
+    </style>
+    <title>Oscilloscope Simulator</title>
+</head>
+
+<body>
+    <canvas id="oscilloscope" width="800" height="400"></canvas>
+
+    <div>
+        <label for="period">Period:</label>
+        <input type="range" id="period" min="1" max="40" step="0.01">
+    </div>
+
+    <div>
+        <label for="waveType">Wave Type:</label>
+        <select id="waveType">
+            <option value="sine">Sine</option>
+            <option value="square">Square</option>
+            <option value="triangle">Triangle</option>
+            <option value="voice">Microphone</option>
+        </select>
+    </div>
+
+    <div>
+        <label for="amplitude">Amplitude:</label>
+        <input type="range" id="amplitude" min="1" max="4" step="0.01">
+    </div>
+
+    <div>
+        <label for="yOffset">Y Offset:</label>
+        <input type="range" id="yOffset" min="-200" max="200" step="1">
+    </div>
+
+    <div>
+        <label for="timebase">Timebase:</label>
+        <select id="timebase">
+            <option value="0.05">50 ns</option>
+            <option value="0.100">100 ns</option>
+            <option value="0.200">200 ns</option>
+            <option value="0.500">500 ns</option>
+            <option value="1">1 ms</option>
+            <option value="2">2 ms</option>
+            <option value="5">5 ms</option>
+        </select>
+    </div>
+
+    <button id="resetValues">Reset</button>
+
+    <script>
+
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const canvas = document.getElementById("oscilloscope");
+            const context = canvas.getContext("2d");
+
+            const oscilloscope = {
+                width: canvas.width,
+                height: canvas.height,
+                backgroundColor: "#000",
+                traceColor: "#019AFA",
+                trace: [],
+                timebase: 50, // Timebase in nanoseconds per division
+                voltageScale: 50, // Voltage scale in pixels per unit
+                amplitude: 1, // Amplitude of the sinusoidal function
+                gridSpacing: 50, // Spacing between grid lines
+                microphoneOffset: 100, // Offset for the microphone waveform
+                yOffset: 0, // Y offset
+            };
+
+            function drawGrid() {
+                // Draw vertical grid lines
+                context.beginPath();
+                context.strokeStyle = "#333";
+                context.lineWidth = 0.5;
+                for (let i = 0; i < oscilloscope.width; i += oscilloscope.gridSpacing) {
+                    context.moveTo(i, 0);
+                    context.lineTo(i, oscilloscope.height);
+                }
+                context.stroke();
+
+                // Draw horizontal grid lines
+                for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing) {
+                    context.moveTo(0, i);
+                    context.lineTo(oscilloscope.width, i);
+                }
+                context.stroke();
+
+                // Draw tick marks on X-axis
+                context.beginPath();
+                context.strokeStyle = "#FFF";
+                context.lineWidth = 2;
+                context.moveTo(oscilloscope.width / 2, oscilloscope.height / 2 - 5);
+                context.lineTo(oscilloscope.width / 2, oscilloscope.height / 2 + 5);
+                context.stroke();
+
+                // Draw tick marks on Y-axis
+                context.beginPath();
+                context.strokeStyle = "#FFF";
+                context.lineWidth = 2;
+                context.moveTo(oscilloscope.width / 2 - 5, oscilloscope.height / 2);
+                context.lineTo(oscilloscope.width / 2 + 5, oscilloscope.height / 2);
+                context.stroke();
+            }
+
+            function drawAxes() {
+                // Draw X-axis
+                context.beginPath();
+                context.strokeStyle = "#FFF";
+                context.lineWidth = 2;
+                context.moveTo(0, oscilloscope.height / 2);
+                context.lineTo(oscilloscope.width, oscilloscope.height / 2);
+                context.stroke();
+
+                // Draw arrow on X-axis
+                context.beginPath();
+                context.moveTo(oscilloscope.width - 10, oscilloscope.height / 2 - 5);
+                context.lineTo(oscilloscope.width, oscilloscope.height / 2);
+                context.lineTo(oscilloscope.width - 10, oscilloscope.height / 2 + 5);
+                context.stroke();
+
+                // Draw Y-axis
+                context.beginPath();
+                context.moveTo(oscilloscope.width / 2, 0);
+                context.lineTo(oscilloscope.width / 2, oscilloscope.height);
+                context.stroke();
+
+                // Draw arrow on Y-axis
+                context.beginPath();
+                context.moveTo(oscilloscope.width / 2 - 5, 10);
+                context.lineTo(oscilloscope.width / 2, 0);
+                context.lineTo(oscilloscope.width / 2 + 5, 10);
+                context.stroke();
+
+                // Label X and Y axes
+                context.fillStyle = "#FFF";
+                context.font = "14px Arial";
+                context.fillText("X", oscilloscope.width - 20, oscilloscope.height / 2 + 20);
+                context.fillText("Y", oscilloscope.width / 2 + 10, 20);
+            }
+
+            function drawOscilloscope() {
+                // Clear the canvas
+                context.fillStyle = oscilloscope.backgroundColor;
+                context.fillRect(0, 0, oscilloscope.width, oscilloscope.height);
+
+                // Draw the grid
+                drawGrid();
+
+                // Draw X and Y axes
+                drawAxes();
+
+                // Draw the trace
+                context.beginPath();
+                context.strokeStyle = oscilloscope.traceColor;
+                context.lineWidth = 2;
+                oscilloscope.trace.forEach((point, index) => {
+                    const x = index;
+                    const y = oscilloscope.height / 2 - point * oscilloscope.voltageScale * oscilloscope.amplitude + oscilloscope.yOffset;
+                    if (index === 0) {
+                        context.moveTo(x, y);
+                    } else {
+                        context.lineTo(x, y);
+                    }
+                });
+                context.stroke();
+
+                // Draw the microphone waveform
+                if (oscilloscope.waveType === "voice") {
+                    context.beginPath();
+                    context.strokeStyle = "#00F"; // Blue color for the microphone waveform
+                    context.lineWidth = 2;
+                    oscilloscope.trace.forEach((point, index) => {
+                        const x = index;
+                        const y = oscilloscope.height / 2 - point * oscilloscope.voltageScale * oscilloscope.amplitude + oscilloscope.yOffset + oscilloscope.microphoneOffset;
+                        if (index === 0) {
+                            context.moveTo(x, y);
+                        } else {
+                            context.lineTo(x, y);
+                        }
+                    });
+                    context.stroke();
+                }
+            }
+
+            function updateOscilloscope(normalizedData) {
+                const frequency = parseFloat(document.getElementById("period").value); // Use frequency directly
+                const waveType = document.getElementById("waveType").value;
+                oscilloscope.amplitude = parseFloat(document.getElementById("amplitude").value);
+                oscilloscope.yOffset = parseFloat(document.getElementById("yOffset").value);
+                oscilloscope.timebase = parseFloat(document.getElementById("timebase").value);
+
+                const numPoints = oscilloscope.width * 2; // Double the points for wrapping effect
+                oscilloscope.trace = Array.from({ length: numPoints }, (_, index) => {
+                    const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000; // Convert to seconds
+                    switch (waveType) {
+                        case "sine":
+                            return Math.sin(Math.PI * frequency * time);
+                        case "square":
+                            return Math.sign(Math.sin(2 * Math.PI * frequency * time));
+                        case "triangle":
+                            return (2 / Math.PI) * Math.asin(Math.sin(2 * Math.PI * frequency * time));
+                        case "voice":
+                            return normalizedData[index] || 0; // Use normalized microphone data
+                        default:
+                            return 0;
+                    }
+                });
+
+                // Redraw the oscilloscope
+                drawOscilloscope();
+            }
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(function (stream) {
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const analyser = audioContext.createAnalyser();
+                    const microphone = audioContext.createMediaStreamSource(stream);
+                    const javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+                    analyser.smoothingTimeConstant = 0.8;
+                    analyser.fftSize = 2048;
+
+                    microphone.connect(analyser);
+                    analyser.connect(javascriptNode);
+                    javascriptNode.connect(audioContext.destination);
+
+                    javascriptNode.onaudioprocess = function () {
+                        const array = new Uint8Array(analyser.frequencyBinCount);
+                        analyser.getByteFrequencyData(array);
+                        updateOscilloscope(Array.from(array, value => (value / 128))); // Normalize to [-1, 1]
+                    };
+                })
+                .catch(function (err) {
+                    console.log('The following gUM error occurred: ' + err);
+                });
+
+            // Update the oscilloscope initially
+            updateOscilloscope([]);
+
+            document.getElementById('resetValues').addEventListener('click', () => {
+                document.getElementById("period").value = 1;
+                document.getElementById("amplitude").value = 1;
+                document.getElementById("yOffset").value = 0;
+                oscilloscope.yOffset = 0;
+                oscilloscope.amplitude = 1;
+                updateOscilloscope();
+                drawOscilloscope();
+            });
+
+            // Listen for changes in the period, waveType, amplitude, Y offset, and timebase sliders
+            document.getElementById("period").addEventListener("input", updateOscilloscope);
+            document.getElementById("waveType").addEventListener("change", updateOscilloscope);
+            document.getElementById("amplitude").addEventListener("input", updateOscilloscope);
+            document.getElementById("yOffset").addEventListener("input", updateOscilloscope);
+            document.getElementById("timebase").addEventListener("change", updateOscilloscope);
+
+            // Update the oscilloscope initially
+            updateOscilloscope();
+
+
+        });
+
+
+    </script>
+
+</body>
+
+</html>
