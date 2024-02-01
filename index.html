@@ -78,11 +78,13 @@
     <script>
 
 
-        document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () 
+            {
             const canvas = document.getElementById("oscilloscope");
             const context = canvas.getContext("2d");
 
-            const oscilloscope = {
+            const oscilloscope = 
+            {
                 width: canvas.width,
                 height: canvas.height,
                 backgroundColor: "#000",
@@ -96,29 +98,29 @@
                 yOffset: 0, 
             };
 
-            function drawGrid() {
+            function drawGrid() 
+            {
                 context.beginPath();
                 context.strokeStyle = "#333";
                 context.lineWidth = 0.5;
-                for (let i = 0; i < oscilloscope.width; i += oscilloscope.gridSpacing) {
+                for (let i = 0; i < oscilloscope.width; i += oscilloscope.gridSpacing) 
+                {
                     context.moveTo(i, 0);
                     context.lineTo(i, oscilloscope.height);
                 }
                 context.stroke();
-
-                for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing) {
+                for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing)
+                {
                     context.moveTo(0, i);
                     context.lineTo(oscilloscope.width, i);
                 }
                 context.stroke();
-
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
                 context.moveTo(oscilloscope.width / 2, oscilloscope.height / 2 - 5);
                 context.lineTo(oscilloscope.width / 2, oscilloscope.height / 2 + 5);
                 context.stroke();
-
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
@@ -134,31 +136,28 @@
                 context.moveTo(0, oscilloscope.height / 2);
                 context.lineTo(oscilloscope.width, oscilloscope.height / 2);
                 context.stroke();
-
                 context.beginPath();
                 context.moveTo(oscilloscope.width - 10, oscilloscope.height / 2 - 5);
                 context.lineTo(oscilloscope.width, oscilloscope.height / 2);
                 context.lineTo(oscilloscope.width - 10, oscilloscope.height / 2 + 5);
                 context.stroke();
-
                 context.beginPath();
                 context.moveTo(oscilloscope.width / 2, 0);
                 context.lineTo(oscilloscope.width / 2, oscilloscope.height);
                 context.stroke();
-
                 context.beginPath();
                 context.moveTo(oscilloscope.width / 2 - 5, 10);
                 context.lineTo(oscilloscope.width / 2, 0);
                 context.lineTo(oscilloscope.width / 2 + 5, 10);
                 context.stroke();
-
                 context.fillStyle = "#FFF";
                 context.font = "14px Arial";
                 context.fillText("X", oscilloscope.width - 20, oscilloscope.height / 2 + 20);
                 context.fillText("Y", oscilloscope.width / 2 + 10, 20);
             }
 
-            function drawOscilloscope() {
+            function drawOscilloscope() 
+            {
                 context.fillStyle = oscilloscope.backgroundColor;
                 context.fillRect(0, 0, oscilloscope.width, oscilloscope.height);
 
@@ -169,27 +168,34 @@
                 context.beginPath();
                 context.strokeStyle = oscilloscope.traceColor;
                 context.lineWidth = 2;
-                oscilloscope.trace.forEach((point, index) => {
+                oscilloscope.trace.forEach((point, index) => 
+                    {
                     const x = index;
                     const y = oscilloscope.height / 2 - point * oscilloscope.voltageScale * oscilloscope.amplitude + oscilloscope.yOffset;
-                    if (index === 0) {
+                    if (index === 0) 
+                    {
                         context.moveTo(x, y);
-                    } else {
+                    } else 
+                    
                         context.lineTo(x, y);
                     }
                 });
                 context.stroke();
 
-                if (oscilloscope.waveType === "voice") {
+                if (oscilloscope.waveType === "voice") 
+                {
                     context.beginPath();
                     context.strokeStyle = "#00F"; 
                     context.lineWidth = 2;
-                    oscilloscope.trace.forEach((point, index) => {
+                    oscilloscope.trace.forEach((point, index) => 
+                        {
                         const x = index;
                         const y = oscilloscope.height / 2 - point * oscilloscope.voltageScale * oscilloscope.amplitude + oscilloscope.yOffset + oscilloscope.microphoneOffset;
-                        if (index === 0) {
+                        if (index === 0) 
+                        {
                             context.moveTo(x, y);
-                        } else {
+                        } else 
+                        {
                             context.lineTo(x, y);
                         }
                     });
@@ -197,7 +203,8 @@
                 }
             }
 
-            function updateOscilloscope(normalizedData) {
+            function updateOscilloscope(normalizedData) 
+            {
                 const frequency = parseFloat(document.getElementById("period").value); 
                 const waveType = document.getElementById("waveType").value;
                 oscilloscope.amplitude = parseFloat(document.getElementById("amplitude").value);
@@ -205,9 +212,11 @@
                 oscilloscope.timebase = parseFloat(document.getElementById("timebase").value);
 
                 const numPoints = oscilloscope.width * 2; 
-                oscilloscope.trace = Array.from({ length: numPoints }, (_, index) => {
+                oscilloscope.trace = Array.from({ length: numPoints }, (_, index) => 
+                    {
                     const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000; 
-                    switch (waveType) {
+                    switch (waveType) 
+                    {
                         case "sine":
                             return Math.sin(Math.PI * frequency * time);
                         case "square":
@@ -225,7 +234,8 @@
             }
 
             navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function (stream) {
+                .then(function (stream) 
+                      {
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     const analyser = audioContext.createAnalyser();
                     const microphone = audioContext.createMediaStreamSource(stream);
@@ -244,27 +254,31 @@
                         updateOscilloscope(Array.from(inputData));
                     };
                 })
-                .catch(function (err) {
+                .catch(function (err) 
+                       {
                     console.log('An audio error occurred: ' + err);
                 });
 
             updateOscilloscope();
 
 
-            document.getElementById('frequencyReset').addEventListener('click', () => {
+            document.getElementById('frequencyReset').addEventListener('click', () => 
+                {
                 document.getElementById("period").value = 1;
                 updateOscilloscope();
                 drawOscilloscope();
             });
 
-            document.getElementById('amplitudeReset').addEventListener('click', () => {
+            document.getElementById('amplitudeReset').addEventListener('click', () => 
+                {
                 document.getElementById("amplitude").value = 1;
                 oscilloscope.amplitude = 1;
                 updateOscilloscope();
                 drawOscilloscope();
             });
 
-            document.getElementById('yOffsetReset').addEventListener('click', () => {
+            document.getElementById('yOffsetReset').addEventListener('click', () => 
+                {
                 document.getElementById("yOffset").value = 0;
                 oscilloscope.yOffset = 0;
                 updateOscilloscope();
