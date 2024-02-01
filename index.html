@@ -40,7 +40,7 @@
                 <div class="align-middle mt-1 mb-1" style="vertical-align: middle;">
                     <button type="button" class="btn btn-primary" id="amplitudeReset"
                         style="--bs-btn-padding-y: 0.3rem; --bs-btn-padding-x: 0.3rem;"><img
-                            src="Assets/2129404-200.png" alt="Amplitude"
+                            src="/Assets/2129404-200.png" alt="Amplitude"
                             style="filter: invert(100%); width: 1.5rem; height: 1.5rem;"></button>
                     <input type="range" id="amplitude" min="1" max="4" step="0.01">
                 </div>
@@ -88,16 +88,15 @@
                 backgroundColor: "#000",
                 traceColor: "#019AFA",
                 trace: [],
-                timebase: 50,
-                voltageScale: 50,
+                timebase: 50, 
+                voltageScale: 50, 
                 amplitude: 1,
-                gridSpacing: 50,
-                microphoneOffset: 100,
-                yOffset: 0,
+                gridSpacing: 50, 
+                microphoneOffset: 100, 
+                yOffset: 0, 
             };
 
             function drawGrid() {
-
                 context.beginPath();
                 context.strokeStyle = "#333";
                 context.lineWidth = 0.5;
@@ -106,7 +105,6 @@
                     context.lineTo(i, oscilloscope.height);
                 }
                 context.stroke();
-
 
                 for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing) {
                     context.moveTo(0, i);
@@ -184,7 +182,7 @@
 
                 if (oscilloscope.waveType === "voice") {
                     context.beginPath();
-                    context.strokeStyle = "#00F";
+                    context.strokeStyle = "#00F"; 
                     context.lineWidth = 2;
                     oscilloscope.trace.forEach((point, index) => {
                         const x = index;
@@ -200,15 +198,15 @@
             }
 
             function updateOscilloscope(normalizedData) {
-                const frequency = parseFloat(document.getElementById("period").value);
+                const frequency = parseFloat(document.getElementById("period").value); 
                 const waveType = document.getElementById("waveType").value;
                 oscilloscope.amplitude = parseFloat(document.getElementById("amplitude").value);
                 oscilloscope.yOffset = parseFloat(document.getElementById("yOffset").value);
                 oscilloscope.timebase = parseFloat(document.getElementById("timebase").value);
 
-                const numPoints = oscilloscope.width * 2;
+                const numPoints = oscilloscope.width * 2; 
                 oscilloscope.trace = Array.from({ length: numPoints }, (_, index) => {
-                    const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000;
+                    const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000; 
                     switch (waveType) {
                         case "sine":
                             return Math.sin(Math.PI * frequency * time);
@@ -217,7 +215,7 @@
                         case "triangle":
                             return (2 / Math.PI) * Math.asin(Math.sin(2 * Math.PI * frequency * time));
                         case "voice":
-                            return normalizedData[index] || 0;
+                            return normalizedData[index] || 0; 
                         default:
                             return 0;
                     }
@@ -240,17 +238,17 @@
                     analyser.connect(javascriptNode);
                     javascriptNode.connect(audioContext.destination);
 
-                    javascriptNode.onaudioprocess = function () {
-                        const inputBuffer = AudioProcessingEvent.inputBuffer;
-                        const inputData = inputBUffer.getChannelData(0);
+                    javascriptNode.onaudioprocess = function (audioProcessingEvent) {
+                        const inputBuffer = audioProcessingEvent.inputBuffer;
+                        const inputData = inputBuffer.getChannelData(0);
                         updateOscilloscope(Array.from(inputData));
                     };
                 })
                 .catch(function (err) {
-                    console.log('The following gUM error occurred: ' + err);
+                    console.log('An audio error occurred: ' + err);
                 });
 
-            updateOscilloscope([]);
+            updateOscilloscope();
 
 
             document.getElementById('frequencyReset').addEventListener('click', () => {
