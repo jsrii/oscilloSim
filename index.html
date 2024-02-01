@@ -88,16 +88,16 @@
                 backgroundColor: "#000",
                 traceColor: "#019AFA",
                 trace: [],
-                timebase: 50, // Timebase in nanoseconds per division
-                voltageScale: 50, // Voltage scale in pixels per unit
-                amplitude: 1, // Amplitude of the sinusoidal function
-                gridSpacing: 50, // Spacing between grid lines
-                microphoneOffset: 100, // Offset for the microphone waveform
-                yOffset: 0, // Y offset
+                timebase: 50,
+                voltageScale: 50,
+                amplitude: 1,
+                gridSpacing: 50,
+                microphoneOffset: 100,
+                yOffset: 0,
             };
 
             function drawGrid() {
-                // Draw vertical grid lines
+
                 context.beginPath();
                 context.strokeStyle = "#333";
                 context.lineWidth = 0.5;
@@ -107,14 +107,13 @@
                 }
                 context.stroke();
 
-                // Draw horizontal grid lines
+
                 for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing) {
                     context.moveTo(0, i);
                     context.lineTo(oscilloscope.width, i);
                 }
                 context.stroke();
 
-                // Draw tick marks on X-axis
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
@@ -122,7 +121,6 @@
                 context.lineTo(oscilloscope.width / 2, oscilloscope.height / 2 + 5);
                 context.stroke();
 
-                // Draw tick marks on Y-axis
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
@@ -132,7 +130,6 @@
             }
 
             function drawAxes() {
-                // Draw X-axis
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
@@ -140,27 +137,23 @@
                 context.lineTo(oscilloscope.width, oscilloscope.height / 2);
                 context.stroke();
 
-                // Draw arrow on X-axis
                 context.beginPath();
                 context.moveTo(oscilloscope.width - 10, oscilloscope.height / 2 - 5);
                 context.lineTo(oscilloscope.width, oscilloscope.height / 2);
                 context.lineTo(oscilloscope.width - 10, oscilloscope.height / 2 + 5);
                 context.stroke();
 
-                // Draw Y-axis
                 context.beginPath();
                 context.moveTo(oscilloscope.width / 2, 0);
                 context.lineTo(oscilloscope.width / 2, oscilloscope.height);
                 context.stroke();
 
-                // Draw arrow on Y-axis
                 context.beginPath();
                 context.moveTo(oscilloscope.width / 2 - 5, 10);
                 context.lineTo(oscilloscope.width / 2, 0);
                 context.lineTo(oscilloscope.width / 2 + 5, 10);
                 context.stroke();
 
-                // Label X and Y axes
                 context.fillStyle = "#FFF";
                 context.font = "14px Arial";
                 context.fillText("X", oscilloscope.width - 20, oscilloscope.height / 2 + 20);
@@ -168,17 +161,13 @@
             }
 
             function drawOscilloscope() {
-                // Clear the canvas
                 context.fillStyle = oscilloscope.backgroundColor;
                 context.fillRect(0, 0, oscilloscope.width, oscilloscope.height);
 
-                // Draw the grid
                 drawGrid();
 
-                // Draw X and Y axes
                 drawAxes();
 
-                // Draw the trace
                 context.beginPath();
                 context.strokeStyle = oscilloscope.traceColor;
                 context.lineWidth = 2;
@@ -193,10 +182,9 @@
                 });
                 context.stroke();
 
-                // Draw the microphone waveform
                 if (oscilloscope.waveType === "voice") {
                     context.beginPath();
-                    context.strokeStyle = "#00F"; // Blue color for the microphone waveform
+                    context.strokeStyle = "#00F";
                     context.lineWidth = 2;
                     oscilloscope.trace.forEach((point, index) => {
                         const x = index;
@@ -212,15 +200,15 @@
             }
 
             function updateOscilloscope(normalizedData) {
-                const frequency = parseFloat(document.getElementById("period").value); // Use frequency directly
+                const frequency = parseFloat(document.getElementById("period").value);
                 const waveType = document.getElementById("waveType").value;
                 oscilloscope.amplitude = parseFloat(document.getElementById("amplitude").value);
                 oscilloscope.yOffset = parseFloat(document.getElementById("yOffset").value);
                 oscilloscope.timebase = parseFloat(document.getElementById("timebase").value);
 
-                const numPoints = oscilloscope.width * 2; // Double the points for wrapping effect
+                const numPoints = oscilloscope.width * 2;
                 oscilloscope.trace = Array.from({ length: numPoints }, (_, index) => {
-                    const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000; // Convert to seconds
+                    const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000;
                     switch (waveType) {
                         case "sine":
                             return Math.sin(Math.PI * frequency * time);
@@ -229,13 +217,12 @@
                         case "triangle":
                             return (2 / Math.PI) * Math.asin(Math.sin(2 * Math.PI * frequency * time));
                         case "voice":
-                            return normalizedData[index] || 0; // Use normalized microphone data
+                            return normalizedData[index] || 0;
                         default:
                             return 0;
                     }
                 });
 
-                // Redraw the oscilloscope
                 drawOscilloscope();
             }
 
@@ -256,14 +243,13 @@
                     javascriptNode.onaudioprocess = function () {
                         const array = new Uint8Array(analyser.frequencyBinCount);
                         analyser.getByteFrequencyData(array);
-                        updateOscilloscope(Array.from(array, value => (value / 128))); // Normalize to [-1, 1]
+                        updateOscilloscope(Array.from(array, value => (value / 128)));
                     };
                 })
                 .catch(function (err) {
                     console.log('The following gUM error occurred: ' + err);
                 });
 
-            // Update the oscilloscope initially
             updateOscilloscope([]);
 
 
@@ -272,29 +258,27 @@
                 updateOscilloscope();
                 drawOscilloscope();
             });
-            
+
             document.getElementById('amplitudeReset').addEventListener('click', () => {
                 document.getElementById("amplitude").value = 1;
                 oscilloscope.amplitude = 1;
                 updateOscilloscope();
                 drawOscilloscope();
             });
-            
+
             document.getElementById('yOffsetReset').addEventListener('click', () => {
                 document.getElementById("yOffset").value = 0;
                 oscilloscope.yOffset = 0;
                 updateOscilloscope();
                 drawOscilloscope();
             });
-            
-            // Listen for changes in the period, waveType, amplitude, Y offset, and timebase sliders
+
             document.getElementById("period").addEventListener("input", updateOscilloscope);
             document.getElementById("waveType").addEventListener("change", updateOscilloscope);
             document.getElementById("amplitude").addEventListener("input", updateOscilloscope);
             document.getElementById("yOffset").addEventListener("input", updateOscilloscope);
             document.getElementById("timebase").addEventListener("change", updateOscilloscope);
 
-            // Update the oscilloscope initially
             updateOscilloscope();
 
 
