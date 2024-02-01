@@ -241,9 +241,9 @@
                     javascriptNode.connect(audioContext.destination);
 
                     javascriptNode.onaudioprocess = function () {
-                        const array = new Uint8Array(analyser.frequencyBinCount);
-                        analyser.getByteFrequencyData(array);
-                        updateOscilloscope(Array.from(array, value => (value / 128)));
+                        const inputBuffer = AudioProcessingEvent.inputBuffer;
+                        const inputData = inputBUffer.getChannelData(0);
+                        updateOscilloscope(Array.from(inputData));
                     };
                 })
                 .catch(function (err) {
