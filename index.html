@@ -40,7 +40,7 @@
                 <div class="align-middle mt-1 mb-1" style="vertical-align: middle;">
                     <button type="button" class="btn btn-primary" id="amplitudeReset"
                         style="--bs-btn-padding-y: 0.3rem; --bs-btn-padding-x: 0.3rem;"><img
-                            src="Assets/2129404-200.png" alt="Amplitude"
+                            src="/Assets/2129404-200.png" alt="Amplitude"
                             style="filter: invert(100%); width: 1.5rem; height: 1.5rem;"></button>
                     <input type="range" id="amplitude" min="1" max="4" step="0.01">
                 </div>
@@ -78,8 +78,7 @@
     <script>
 
 
-        document.addEventListener("DOMContentLoaded", function () 
-            {
+        document.addEventListener("DOMContentLoaded", function () {
             const canvas = document.getElementById("oscilloscope");
             const context = canvas.getContext("2d");
 
@@ -109,18 +108,21 @@
                     context.lineTo(i, oscilloscope.height);
                 }
                 context.stroke();
-                for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing)
+
+                for (let i = 0; i < oscilloscope.height; i += oscilloscope.gridSpacing) 
                 {
                     context.moveTo(0, i);
                     context.lineTo(oscilloscope.width, i);
                 }
                 context.stroke();
+
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
                 context.moveTo(oscilloscope.width / 2, oscilloscope.height / 2 - 5);
                 context.lineTo(oscilloscope.width / 2, oscilloscope.height / 2 + 5);
                 context.stroke();
+
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
@@ -129,27 +131,32 @@
                 context.stroke();
             }
 
-            function drawAxes() {
+            function drawAxes() 
+            {
                 context.beginPath();
                 context.strokeStyle = "#FFF";
                 context.lineWidth = 2;
                 context.moveTo(0, oscilloscope.height / 2);
                 context.lineTo(oscilloscope.width, oscilloscope.height / 2);
                 context.stroke();
+
                 context.beginPath();
                 context.moveTo(oscilloscope.width - 10, oscilloscope.height / 2 - 5);
                 context.lineTo(oscilloscope.width, oscilloscope.height / 2);
                 context.lineTo(oscilloscope.width - 10, oscilloscope.height / 2 + 5);
                 context.stroke();
+
                 context.beginPath();
                 context.moveTo(oscilloscope.width / 2, 0);
                 context.lineTo(oscilloscope.width / 2, oscilloscope.height);
                 context.stroke();
+
                 context.beginPath();
                 context.moveTo(oscilloscope.width / 2 - 5, 10);
                 context.lineTo(oscilloscope.width / 2, 0);
                 context.lineTo(oscilloscope.width / 2 + 5, 10);
                 context.stroke();
+
                 context.fillStyle = "#FFF";
                 context.font = "14px Arial";
                 context.fillText("X", oscilloscope.width - 20, oscilloscope.height / 2 + 20);
@@ -169,14 +176,14 @@
                 context.strokeStyle = oscilloscope.traceColor;
                 context.lineWidth = 2;
                 oscilloscope.trace.forEach((point, index) => 
-                    {
+                {
                     const x = index;
                     const y = oscilloscope.height / 2 - point * oscilloscope.voltageScale * oscilloscope.amplitude + oscilloscope.yOffset;
                     if (index === 0) 
                     {
                         context.moveTo(x, y);
                     } else 
-                    
+                    {
                         context.lineTo(x, y);
                     }
                 });
@@ -188,7 +195,7 @@
                     context.strokeStyle = "#00F"; 
                     context.lineWidth = 2;
                     oscilloscope.trace.forEach((point, index) => 
-                        {
+                    {
                         const x = index;
                         const y = oscilloscope.height / 2 - point * oscilloscope.voltageScale * oscilloscope.amplitude + oscilloscope.yOffset + oscilloscope.microphoneOffset;
                         if (index === 0) 
@@ -203,8 +210,7 @@
                 }
             }
 
-            function updateOscilloscope(normalizedData) 
-            {
+            function updateOscilloscope(normalizedData) {
                 const frequency = parseFloat(document.getElementById("period").value); 
                 const waveType = document.getElementById("waveType").value;
                 oscilloscope.amplitude = parseFloat(document.getElementById("amplitude").value);
@@ -213,7 +219,7 @@
 
                 const numPoints = oscilloscope.width * 2; 
                 oscilloscope.trace = Array.from({ length: numPoints }, (_, index) => 
-                    {
+                {
                     const time = (index - oscilloscope.width / 2) * oscilloscope.timebase / 1000; 
                     switch (waveType) 
                     {
@@ -235,7 +241,7 @@
 
             navigator.mediaDevices.getUserMedia({ audio: true })
                 .then(function (stream) 
-                      {
+                {
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     const analyser = audioContext.createAnalyser();
                     const microphone = audioContext.createMediaStreamSource(stream);
@@ -248,14 +254,15 @@
                     analyser.connect(javascriptNode);
                     javascriptNode.connect(audioContext.destination);
 
-                    javascriptNode.onaudioprocess = function (audioProcessingEvent) {
+                    javascriptNode.onaudioprocess = function (audioProcessingEvent) 
+                    {
                         const inputBuffer = audioProcessingEvent.inputBuffer;
                         const inputData = inputBuffer.getChannelData(0);
                         updateOscilloscope(Array.from(inputData));
                     };
                 })
                 .catch(function (err) 
-                       {
+                {
                     console.log('An audio error occurred: ' + err);
                 });
 
@@ -263,14 +270,14 @@
 
 
             document.getElementById('frequencyReset').addEventListener('click', () => 
-                {
+            {
                 document.getElementById("period").value = 1;
                 updateOscilloscope();
                 drawOscilloscope();
             });
 
             document.getElementById('amplitudeReset').addEventListener('click', () => 
-                {
+            {
                 document.getElementById("amplitude").value = 1;
                 oscilloscope.amplitude = 1;
                 updateOscilloscope();
@@ -278,7 +285,7 @@
             });
 
             document.getElementById('yOffsetReset').addEventListener('click', () => 
-                {
+            {
                 document.getElementById("yOffset").value = 0;
                 oscilloscope.yOffset = 0;
                 updateOscilloscope();
